@@ -5,6 +5,8 @@ class Config_Manager:
   def __init__(self):
     self.key = None
     self.load_key()
+    self.host = "localhost"
+    self.port = 1883
 
   def load_key(self):
     try:
@@ -32,10 +34,18 @@ class Config_Manager:
       with open("config.json.enc", "rb") as enc_file:
         encrypted_config = enc_file.read()
       decrypted_config = self.key.decrypt(encrypted_config)
-      print(decrypted_config.decode())
+      return decrypted_config.decode()
     except Exception as e:
       print(f"An error occurred while decrypting the file {e}")
 
+  def load_config(self):
+    try:
+      decrypted_config = self.decrypt()
+      data = json.loads(decrypted_config)
+      self.host = str(data['MQTT_BROKER']['host'])
+      self.port = int(data['MQTT_BROKER']['port'])
+    except Exception as e:
+      print(f"An error occurred while loading the config {e}")
 
 if __name__ == "__main__":
-  Encryptor().encrypt()
+  Config_Manager().encrypt()
