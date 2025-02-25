@@ -7,6 +7,7 @@ class Config_Manager:
     self.load_key()
     self.host = "localhost"
     self.port = 1883
+    self.pos_type = "printer"
     self.config = None
 
   def load_key(self):
