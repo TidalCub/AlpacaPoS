@@ -7,6 +7,7 @@ class Config_Manager:
     self.load_key()
     self.host = "localhost"
     self.port = 1883
+    self.config = None
 
   def load_key(self):
     try:
@@ -17,6 +18,7 @@ class Config_Manager:
       print(f"There is no {filepath} found. Please add the key file")
 
   def create_config(self, config_json):
+    self.config
     return json.dumps(config_json)
 
   def encrypt(self):
