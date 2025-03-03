@@ -43,7 +43,7 @@ def format_receipt(payload):
     p.set(align='center', bold=True, height=2, width=2)
     p.text("Items:\n")
     p.text("\u2500" * 32 + "\n")
-    p.set(bold=False, height=1, width=1)
+    p.set(align='left', bold=False, height=1, width=1)
     for item in data['items']:
       name = item['name']
       quantity = 1
@@ -54,7 +54,7 @@ def format_receipt(payload):
 
     p.set(align='center', bold=True, height=2, width=2)
     p.text("\u2500" * 32 + "\n")
-    p.set(bold=False, height=1, width=1)
+    p.set(align='left', bold=False, height=1, width=1)
 
     # Total
     total = float(data['total'])
