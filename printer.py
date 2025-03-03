@@ -40,12 +40,16 @@ def format_receipt(payload):
     receipt_lines.append("Items:")
     receipt_lines.append("\n")
     for item in data['items']:
-        receipt_lines.append(f"{item['name']} x{item['quantity']} @ ${item['price']:.2f}")
+        name = item['name']
+        quantity = 1
+        price = float(item['price'])
+        receipt_lines.append(f"{name} x{quantity} @ ${price:.2f}")
         receipt_lines.append("\n")
 
     # Add total
+    total = float(data['total'])
     receipt_lines.append("\n")
-    receipt_lines.append(f"Total: ${data['total']:.2f}")
+    receipt_lines.append(f"Total: ${total:.2f}")
     receipt_lines.append("\n")
 
     # Add order details
