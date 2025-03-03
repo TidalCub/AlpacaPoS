@@ -1,12 +1,12 @@
 import paho.mqtt.client as mqtt
-import os
-from config_manager import Config_Manager
 import json
+from escpos.printer import Usb
+from config_manager import Config_Manager
 
 def load_config():
-  cm = Config_Manager()
-  cm.load_config()
-  return cm.host, int(cm.port), "printer", cm.username, cm.password
+    cm = Config_Manager()
+    cm.load_config()
+    return cm.host, int(cm.port), "printer", cm.username, cm.password
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -19,50 +19,56 @@ def on_message(client, userdata, msg):
     message = msg.payload.decode()
     print(f"Message received: {message}")
     try:
-      receipt = format_receipt(message)
-      os.system(f'echo "{receipt}" > /dev/usb/lp0')
+        receipt = format_receipt(message)
+        print_receipt(receipt)
     except Exception as e:
-      print(f"Error writing to printer: {e}")
+        print(f"Error writing to printer: {e}")
 
 def format_receipt(payload):
     data = json.loads(payload)
-    receipt_lines = []
-
-    # Add store name centered
-    receipt_lines.append("\x1B\x61\x01" + data['order_details']['store'] + "\x1B\x61\x00")  # Center text
-    receipt_lines.append("\n")
-
-    # Add order ID
-    receipt_lines.append(f"Order ID: {data['order_id']}")
-    receipt_lines.append("\n")
-
-    # Add items
-    receipt_lines.append("Items:")
-    receipt_lines.append("\n")
+    p = Usb(0x04b8, 0x0202)  # Vendor & Product ID for Epson TM-T70
+    
+    # Store name (centered & bold)
+    p.set(align='center', bold=True, height=2, width=2)
+    p.text(data['order_details']['store'] + "\n")
+    p.set(bold=False, height=1, width=1)
+    p.text("\n")
+    
+    # Order ID
+    p.set(align='left')
+    p.text(f"Order ID: {data['order_id']}\n")
+    p.text("\n")
+    
+    # Items
+    p.text("Items:\n")
     for item in data['items']:
         name = item['name']
         quantity = 1
         price = float(item['price'])
-        receipt_lines.append(f"{name} x{quantity} @ ${price:.2f}")
-        receipt_lines.append("\n")
-
-    # Add total
+        p.text(f"{name} x{quantity} @ ${price:.2f}\n")
+    
+    # Total
     total = float(data['total'])
-    receipt_lines.append("\n")
-    receipt_lines.append(f"Total: ${total:.2f}")
-    receipt_lines.append("\n")
+    p.text("\n")
+    p.set(bold=True)
+    p.text(f"Total: ${total:.2f}\n")
+    p.set(bold=False)
+    p.text("\n")
+    
+    # Order details
+    p.text(f"Started at: {data['order_details']['started_at_time']}\n")
+    p.text(f"Last updated at: {data['order_details']['last_updated_at_time']}\n")
+    
+    # Cut paper
+    p.cut()
+    
+    return p
 
-    # Add order details
-    receipt_lines.append("\n")
-    receipt_lines.append(f"Started at: {data['order_details']['started_at_time']}")
-    receipt_lines.append("\n")
-    receipt_lines.append(f"Last updated at: {data['order_details']['last_updated_at_time']}")
-    receipt_lines.append("\n")
-
-    # Add cut command
-    receipt_lines.append("\x1D\x56\x42\x00")  # Cut paper
-
-    return ''.join(receipt_lines)
+def print_receipt(printer):
+    try:
+        printer.close()
+    except Exception as e:
+        print(f"Error closing printer: {e}")
 
 if __name__ == "__main__":
     MQTT_BROKER, MQTT_PORT, MQTT_TOPIC, MQTT_USERNAME, MQTT_PASSWORD = load_config()
