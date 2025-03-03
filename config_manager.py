@@ -37,6 +37,7 @@ class Config_Manager:
       with open("config.json.enc", "rb") as enc_file:
         encrypted_config = enc_file.read()
       decrypted_config = self.key.decrypt(encrypted_config)
+      print(decrypted_config)
       return decrypted_config.decode()
     except Exception as e:
       print(f"An error occurred while decrypting the file {e}")
@@ -51,4 +52,4 @@ class Config_Manager:
       print(f"An error occurred while loading the config {e}")
 
 if __name__ == "__main__":
-  Config_Manager().encrypt()
+  Config_Manager().decrypt()
