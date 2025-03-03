@@ -5,7 +5,7 @@ from config_manager import Config_Manager
 def load_config():
   cm = Config_Manager()
   cm.load_config()
-  return cm.host, int(cm.port), "test", cm.username, cm.password
+  return cm.host, int(cm.port), "printer", cm.username, cm.password
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
