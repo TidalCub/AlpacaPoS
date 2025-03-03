@@ -40,13 +40,22 @@ def format_receipt(payload):
     p.text("\n")
     
     # Items
+    p.set(align='center', bold=True, height=2, width=2)
     p.text("Items:\n")
+    printer.text("\u2500" * 32 + "\n")
+    p.set(bold=False, height=1, width=1)
     for item in data['items']:
-        name = item['name']
-        quantity = 1
-        price = float(item['price'])
-        p.text(f"{name} x{quantity} @ ${price:.2f}\n")
-    
+      name = item['name']
+      quantity = 1
+      price = float(item['price'])
+      p.text(f"{name} x{quantity} @ ${price:.2f}\n")
+      for modifier in item['modifiers']:
+        p.text(f" + {modifier['name']} {modifier['ingredient_group']}\n")
+
+    p.set(align='center', bold=True, height=2, width=2)
+    printer.text("\u2500" * 32 + "\n")
+    p.set(bold=False, height=1, width=1)
+
     # Total
     total = float(data['total'])
     p.text("\n")
