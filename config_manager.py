@@ -7,6 +7,8 @@ class Config_Manager:
     self.load_key()
     self.host = "localhost"
     self.port = 1883
+    self.username = "None"
+    self.password = "None"
     self.pos_type = "printer"
     self.config = None
 
@@ -22,9 +24,9 @@ class Config_Manager:
     self.config
     return json.dumps(config_json)
 
-  def encrypt(self):
+  def encrypt(self, config):
     try:
-      config_json = self.create_config().encode()
+      config_json = self.create_config(config).encode()
       encrypted_config = self.key.encrypt(config_json)
       with open("config.json.enc", "wb") as enc_file:
         enc_file.write(encrypted_config)
@@ -37,7 +39,6 @@ class Config_Manager:
       with open("config.json.enc", "rb") as enc_file:
         encrypted_config = enc_file.read()
       decrypted_config = self.key.decrypt(encrypted_config)
-      print(decrypted_config)
       return decrypted_config.decode()
     except Exception as e:
       print(f"An error occurred while decrypting the file {e}")
@@ -48,6 +49,9 @@ class Config_Manager:
       data = json.loads(decrypted_config)
       self.host = str(data['MQTT_BROKER']['host'])
       self.port = int(data['MQTT_BROKER']['port'])
+      self.username = str(data['authentication']['username'])
+      self.password = str(data['authentication']['password'])
+      return True
     except Exception as e:
       print(f"An error occurred while loading the config {e}")
 
