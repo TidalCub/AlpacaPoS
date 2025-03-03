@@ -18,9 +18,10 @@ def on_message(client, userdata, msg):
     message = msg.payload.decode()
     print(f"Message received: {message}")
     try:
-        os.system(f'echo "{receipt}" > /dev/usb/lp0')
+      receipt = format_receipt(message)
+      os.system(f'echo "{receipt}" > /dev/usb/lp0')
     except Exception as e:
-        print(f"Error writing to printer: {e}")
+      print(f"Error writing to printer: {e}")
 
 def format_receipt(payload):
     data = json.loads(payload)
