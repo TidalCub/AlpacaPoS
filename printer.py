@@ -12,13 +12,12 @@ def load_config():
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("Connected successfully to MQTT broker")
-        p = Usb(0x04b8, 0x0202) 
-        p.text("Connected successfully to MQTT broker")
-        p.close()
+        print_log("Connected to MQTT broker\n")
+        print_log(f"Subscribing to topic: {MQTT_TOPIC}\n")
+        print_log("\u2500" * 32 + "\n")
         client.subscribe(MQTT_TOPIC)
     else:
-        print(f"Failed to connect, return code {rc}")
+        print_log(f"Failed to connect, return code {rc}")
 
 def on_message(client, userdata, msg):
     message = msg.payload.decode()
@@ -100,15 +99,20 @@ def check_internet(host="8.8.8.8", port=53, timeout=3):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return "Connected"
     except Exception:
-        return False
+        return "No Connection"
 
 def on_wake():
-  p = Usb(0x04b8, 0x0202)
-  p.text("Checking Internet Status\n")
-  p.text("Status: " + check_internet())
-  p.text("\u2500" * 32 + "\n")
-  p.text("Ip Address of Device: " + ip())
-  p.close()
+  print_log("Checking Internet Status\n")
+  print_log(f"Status: {check_internet()}\n")
+  print_log("\u2500" * 32 + "\n")
+  print_log(f"Ip Address of Device: {ip()}\n")
+
+
+def print_log(message):
+    print(message)
+    p = Usb(0x04b8, 0x0202)
+    p.text(message + "\n")
+    p.close()
 
 
 if __name__ == "__main__":
@@ -120,14 +124,8 @@ if __name__ == "__main__":
     client.on_message = on_message
 
     try:
-        print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
-        p = Usb(0x04b8, 0x0202) 
-        p.text(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
-        p.close()
+        print_log(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...\n")
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_forever()
     except Exception as e:
-        print(f"Connection failed: {e}")
-        p = Usb(0x04b8, 0x0202) 
-        p.text(f"Connection failed: {e}")
-        p.close()
+        print_log(f"Connection failed: {e}\n")
