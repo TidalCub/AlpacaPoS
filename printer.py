@@ -15,7 +15,7 @@ def on_connect(client, userdata, flags, rc):
         print("Connected successfully to MQTT broker")
         p = Usb(0x04b8, 0x0202) 
         p.text("Connected successfully to MQTT broker")
-        p.close
+        p.close()
         client.subscribe(MQTT_TOPIC)
     else:
         print(f"Failed to connect, return code {rc}")
@@ -108,7 +108,7 @@ def on_wake():
   p.text("Status: " + check_internet())
   p.text("\u2500" * 32 + "\n")
   p.text("Ip Address of Device: " + ip())
-  p.close
+  p.close()
 
 
 if __name__ == "__main__":
@@ -123,11 +123,11 @@ if __name__ == "__main__":
         print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
         p = Usb(0x04b8, 0x0202) 
         p.text(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
-        p.close
+        p.close()
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_forever()
     except Exception as e:
         print(f"Connection failed: {e}")
         p = Usb(0x04b8, 0x0202) 
         p.text(f"Connection failed: {e}")
-        p.close
+        p.close()
