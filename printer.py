@@ -2,6 +2,8 @@ import paho.mqtt.client as mqtt
 import json
 from escpos.printer import Usb
 from config_manager import Config_Manager
+import socket
+import subprocess
 
 def load_config():
     cm = Config_Manager()
@@ -11,6 +13,9 @@ def load_config():
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected successfully to MQTT broker")
+        p = Usb(0x04b8, 0x0202) 
+        p.text("Connected successfully to MQTT broker")
+        p.close
         client.subscribe(MQTT_TOPIC)
     else:
         print(f"Failed to connect, return code {rc}")
@@ -79,7 +84,35 @@ def print_receipt(printer):
     except Exception as e:
         print(f"Error closing printer: {e}")
 
+def ip():
+  try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
+  except Exception:
+      return "Unknown"
+
+def check_internet(host="8.8.8.8", port=53, timeout=3):
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return "Connected"
+    except Exception:
+        return False
+
+def on_wake():
+  p = Usb(0x04b8, 0x0202)
+  p.text("Checking Internet Status\n")
+  p.text("Status: " + check_internet())
+  p.text("\u2500" * 32 + "\n")
+  p.text("Ip Address of Device: " + ip())
+  p.close
+
+
 if __name__ == "__main__":
+    on_wake()
     MQTT_BROKER, MQTT_PORT, MQTT_TOPIC, MQTT_USERNAME, MQTT_PASSWORD = load_config()
     client = mqtt.Client()
     client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
@@ -88,7 +121,13 @@ if __name__ == "__main__":
 
     try:
         print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
+        p = Usb(0x04b8, 0x0202) 
+        p.text(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}...")
+        p.close
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_forever()
     except Exception as e:
         print(f"Connection failed: {e}")
+        p = Usb(0x04b8, 0x0202) 
+        p.text(f"Connection failed: {e}")
+        p.close
