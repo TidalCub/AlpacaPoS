@@ -12,9 +12,7 @@ def load_config():
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print_log("Connected to MQTT broker")
-        print_log("Subscribing to topic: + MQTT_TOPIC")
-        print_log("\u2500" * 32 + "\n")
+        print_log("Connected to MQTT broker!\n\n")
         client.subscribe(MQTT_TOPIC)
     else:
         print_log("Failed to connect, return code" + rc)
@@ -102,10 +100,8 @@ def check_internet(host="8.8.8.8", port=53, timeout=3):
         return "No Connection"
 
 def on_wake():
-  print_log("Checking Internet Status\n")
-  print_log("Status:" +  check_internet())
-  print_log("\u2500" * 32 + "\n")
-  print_log("Ip Address of Device:" + {ip()})
+  message = "Checking Internet Status\nStatus" + check_internet() + "\nIp Address of Device:" + ip()
+  print_log(message)
 
 
 def print_log(message):
