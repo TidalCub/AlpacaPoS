@@ -30,6 +30,12 @@ def format_receipt(payload):
     data = json.loads(payload)
     p = Usb(0x04b8, 0x0202)  # Vendor & Product ID for Epson TM-T70
     
+    p.set(align='center', width=3, height=3)
+    p.text("Mobile Order\n")
+    p.set(width=4, height=4)
+    p.text(data['order_details']['customer_name'] + "\n")
+    p.set(width=1, height=1)
+    p.text("\n")
     # Store name (centered & bold)
     p.set(align='center', bold=True, height=2, width=2)
     p.text(data['order_details']['store'] + "\n")
@@ -70,6 +76,9 @@ def format_receipt(payload):
     p.text(f"Started at: {data['order_details']['started_at_time']}\n")
     p.text(f"Last updated at: {data['order_details']['last_updated_at_time']}\n")
     
+    order_id = str(data["order_id"]).zfill(9)
+    p.barcode(order_id, 'CODE39', width=2, height=100, position='BELOW', align_ct=True)
+
     # Cut paper
     p.cut()
     
