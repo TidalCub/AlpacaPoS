@@ -75,9 +75,7 @@ def format_receipt(payload):
     # Order details
     p.text(f"Started at: {data['order_details']['started_at_time']}\n")
     p.text(f"Last updated at: {data['order_details']['last_updated_at_time']}\n")
-    
-    order_id = str(data["order_id"]).zfill(9)
-    p.barcode(order_id, 'CODE39', width=2, height=100, position='BELOW', align_ct=True)
+
 
     # Cut paper
     p.cut()
