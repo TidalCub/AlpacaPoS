@@ -59,7 +59,7 @@ def format_receipt(payload):
     p.set(align='left', bold=False, height=1, width=1)
 
     # Total
-    total = float(data['total']
+    total = float(data['total'])
     p.text("\n")
     p.set(bold=True)
     p.text(f"Total: ${total:.2f}\n")
